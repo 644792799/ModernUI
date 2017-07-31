@@ -241,22 +241,31 @@ namespace MetroFramework.Controls
 
             e.Graphics.Clear(backColor);
 
-            for (var index = 0; index < TabPages.Count; index++)
-            {
-                if (index != SelectedIndex)
-                {
-                    DrawTab(index, e.Graphics);
-                }
-            }
             if (SelectedIndex <= -1)
             {
                 return;
             }
 
-            DrawTabBottomBorder(SelectedIndex, e.Graphics);
-            DrawTab(SelectedIndex, e.Graphics);
-            DrawTabSelected(SelectedIndex, e.Graphics);
+            for (var index = 0; index < TabPages.Count; index++)
+            {
+                //if (index != SelectedIndex)
+                //{
+                    DrawTab(index, e.Graphics);
+                //}
+            }
+            
 
+            if (Alignment == TabAlignment.Bottom || Alignment == TabAlignment.Top)
+            {
+                DrawTabBottomBorder(SelectedIndex, e.Graphics);
+                DrawTabSelected(SelectedIndex, e.Graphics);
+            }
+            else
+            {
+                DrawTabLeftBorder(SelectedIndex, e.Graphics);
+                DrawLeftTabSelected(SelectedIndex, e.Graphics);
+            }
+            //DrawTab(SelectedIndex, e.Graphics);
         }
 
         private void DrawTabBottomBorder(int index, Graphics graphics)
@@ -266,6 +275,15 @@ namespace MetroFramework.Controls
                 graphics.FillRectangle(bgBrush, -2 + GetTabRect(0).X + DisplayRectangle.X, GetTabRect(index).Bottom + 2 - TabBottomBorderHeight,
                                        Width - (Width - DisplayRectangle.Width + DisplayRectangle.X) + 4,
                                        TabBottomBorderHeight);
+            }
+        }
+
+        private void DrawTabLeftBorder(int index, Graphics graphics)
+        {
+            using (var bgBrush = new SolidBrush(MetroPaint.BorderColor.TabControl.Normal(Theme)))
+            {
+                graphics.FillRectangle(bgBrush, -2 + GetTabRect(0).X + GetTabRect(0).Width, GetTabRect(0).Top,
+                                       TabBottomBorderHeight, Height - (Height - DisplayRectangle.Height + DisplayRectangle.Y));
             }
         }
 
@@ -281,6 +299,22 @@ namespace MetroFramework.Controls
                     Y = selectedTabRect.Bottom + 2 - TabBottomBorderHeight,
                     Width = selectedTabRect.Width,
                     Height = TabBottomBorderHeight
+                });
+            }
+        }
+
+        private void DrawLeftTabSelected(int index, Graphics graphics)
+        {
+            using (var selectionBrush = new SolidBrush(MetroPaint.GetStyleColor(Style)))
+            {
+                var selectedTabRect = GetTabRect(index);
+                var textAreaRect = MeasureText(TabPages[index].Text);
+                graphics.FillRectangle(selectionBrush, new Rectangle
+                {
+                    X = -2 + selectedTabRect.X + selectedTabRect.Width,
+                    Y = selectedTabRect.Top,
+                    Width = TabBottomBorderHeight,
+                    Height = selectedTabRect.Height
                 });
             }
         }
@@ -329,7 +363,7 @@ namespace MetroFramework.Controls
                 }
             }
 
-            if (index == 0)
+            if (index == 0 && (Alignment == TabAlignment.Bottom || Alignment == TabAlignment.Top))
             {
                 tabRect.X = DisplayRectangle.X;
             }
